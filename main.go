@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
+	"databaseExplore/server"
 	"log"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 
 	"go.elastic.co/ecszap"
@@ -28,6 +30,25 @@ func main() {
 		logger.Info("Service shutting down main due to: " + exitSignal.String())
 		cancel()
 	}()
+
+	server := server.NewServer(ctx, 8080, 10, 10, logger)
+
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+
+	go func() {
+		defer wg.Done()
+		err = server.Run()
+		if err != nil {
+			logger.Error("Error in running server", zap.Error(err))
+		}
+	}()
+
+	server.SetHealthy(true)
+	server.SetReady(true)
+
+	wg.Wait()
 }
 
 func NewLogger(configLogLevel string) (*zap.Logger, error) {
