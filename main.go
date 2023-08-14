@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"databaseExplore/server"
+	"databaseExplore/app/server"
 	"log"
 	"os"
 	"os/signal"

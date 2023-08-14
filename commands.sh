@@ -1,1 +1,1 @@
-docker run -d -p 8080:8080 --name golangtest golangtest:test 
+docker run -d -p 8080:8080 --name golangtest testgolang:test 
