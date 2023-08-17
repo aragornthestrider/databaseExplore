@@ -1,1 +1,1 @@
-docker run -d -p 8080:8080 --network testnetwork -h golangtest --name golangtest testgolang:test 
+docker run -d -p 8080:8080 --network testnetwork -h golangtest --name golangtest --mount type=bind,source="$(pwd)"/app/config/config.yaml,target=/config/config.yaml,readonly testgolang:test 

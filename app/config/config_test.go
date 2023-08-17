@@ -19,4 +19,9 @@ func TestConfig(t *testing.T) {
 		t.Error("Error in unmarshiling config object: ", err)
 	}
 	assert.Equal(t, config.InsertCount, 100)
+	assert.Equal(t, config.DatabaseConfig.URL, "postgres")
+	assert.Equal(t, config.DatabaseConfig.Port, 5432)
+	assert.Equal(t, config.DatabaseConfig.Database, "postgres")
+	assert.Equal(t, config.DatabaseConfig.Username, "postgres")
+	assert.Equal(t, config.DatabaseConfig.Password, "postgres")
 }
