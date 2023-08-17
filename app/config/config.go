@@ -1,12 +1,13 @@
 package config
 
-type DatabaseDetails struct {
-	URL      string
-	Username string
-	Password string
+type DatabaseDetail struct {
+	URL      string `yaml:"url"`
+	Port     int    `yaml:"port"`
+	Username string `yaml:"username"`
+	Password string `yaml:"password"`
 }
 
 type Config struct {
-	Requests int
-	Database DatabaseDetails
+	InsertCount    int            `yaml:"insertCount"`
+	DatabaseConfig DatabaseDetail `yaml:"databaseConfig"`
 }

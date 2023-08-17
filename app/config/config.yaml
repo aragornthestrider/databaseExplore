@@ -1,0 +1,7 @@
+insertCount: 100
+databaseConfig:
+  url: postgres
+  port: 5432
+  database: postgres
+  username: postgres
+  password: postgres
