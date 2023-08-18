@@ -77,18 +77,38 @@ func (app *Application) Start() {
 	app.db = db
 	app.Logger = logger
 
+	err = app.SetupStorage()
+	if err != nil {
+
+	}
+
 	wg.Wait()
 
-	err = app.Close()
+	app.Close()
 }
 
-func (app *Application) Close() error {
+func (app *Application) SetupStorage() error {
+	_, err := app.db.Conn.Exec(`
+	CREATE TABLE IF NOT EXISTS TESTTABLE(
+		UUIDvalue text PRIMARY KEY
+	);`)
+	if err != nil {
+		app.Logger.Error("Error in creating table", zap.Error(err))
+		return err
+	}
+	app.Logger.Info("Storage setup correctly")
+	return nil
+}
+
+func (app *Application) Close() {
 	err := app.db.Conn.Close()
 	if err != nil {
 		app.Logger.Error("Error in closing database connection", zap.Error(err))
-		return err
 	}
-	return nil
+	app.Logger.Info("Database connection closed!")
+
+	app.Logger.Sync()
+	return
 }
 
 func NewLogger(configLogLevel string) (*zap.Logger, error) {
