@@ -12,6 +12,7 @@ import (
 	"os/signal"
 	"sync"
 	"syscall"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -117,7 +118,7 @@ func (app *Application) SetupStorage() error {
 
 func (app *Application) TestStorage() error {
 	insertStatement := "INSERT INTO TESTTABLE (UUIDvalue) VALUES ($1)"
-	//startTime = time.Now()
+	startTime := time.Now()
 	for i := 0; i < app.insertCount; i++ {
 		conn, err := app.db.Conn.Conn(context.TODO())
 		if err != nil {
@@ -131,6 +132,8 @@ func (app *Application) TestStorage() error {
 		}
 		conn.Close()
 	}
+	timeDiff := time.Now().Sub(startTime)
+	app.Logger.Info("Summary", zap.String("Record count", fmt.Sprintf("%d", app.insertCount)), zap.String("Time taken", timeDiff.String()))
 
 	return nil
 }

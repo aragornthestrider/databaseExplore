@@ -1,4 +1,4 @@
-insertCount: 100
+insertCount: 10000
 databaseConfig:
   url: postgres
   port: 5432
