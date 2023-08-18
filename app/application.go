@@ -13,14 +13,17 @@ import (
 	"sync"
 	"syscall"
 
+	"github.com/google/uuid"
+
 	"go.elastic.co/ecszap"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
 type Application struct {
-	db     *database.Database
-	Logger *zap.Logger
+	db          *database.Database
+	insertCount int
+	Logger      *zap.Logger
 }
 
 func (app *Application) Start() {
@@ -71,15 +74,27 @@ func (app *Application) Start() {
 	))
 	if err != nil {
 		logger.Error("Unable to connect to database", zap.Error(err))
+		app.Close()
+		return
 	}
 	logger.Info("Database connected")
 
 	app.db = db
 	app.Logger = logger
+	app.insertCount = config.InsertCount
 
 	err = app.SetupStorage()
 	if err != nil {
+		app.Logger.Error("Error in setting up storage", zap.Error(err))
+		app.Close()
+		return
+	}
 
+	err = app.TestStorage()
+	if err != nil {
+		app.Logger.Error("Error in testing storage", zap.Error(err))
+		app.Close()
+		return
 	}
 
 	wg.Wait()
@@ -97,6 +112,26 @@ func (app *Application) SetupStorage() error {
 		return err
 	}
 	app.Logger.Info("Storage setup correctly")
+	return nil
+}
+
+func (app *Application) TestStorage() error {
+	insertStatement := "INSERT INTO TESTTABLE (UUIDvalue) VALUES ($1)"
+	//startTime = time.Now()
+	for i := 0; i < app.insertCount; i++ {
+		conn, err := app.db.Conn.Conn(context.TODO())
+		if err != nil {
+			app.Logger.Error("Error in getting connection", zap.Error(err))
+			return err
+		}
+		_, err = conn.ExecContext(context.TODO(), insertStatement, uuid.New().String())
+		if err != nil {
+			app.Logger.Error("Error in inserting data", zap.Error(err))
+			return err
+		}
+		conn.Close()
+	}
+
 	return nil
 }
 
